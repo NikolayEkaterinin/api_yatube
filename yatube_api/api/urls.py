@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/v1/groups/', name='groups'),
     path('api/v1/groups/{group_id}/', name='groups_detail'),
     path('api/v1/posts/{post_id}/comments/', name='post_comments'),
-    path('api/v1/posts/{post_id}/comments/{comment_id}/', name='comments_edit'),
+    path('api/v1/posts/{post_id}/comments/{comment_id}/',
+         name='comments_edit'),
 
 ]
