@@ -5,7 +5,7 @@ from rest_framework.authtoken import views
 from rest_framework.routers import SimpleRouter
 
 router = SimpleRouter()
-router.register('api/v1/posts', )
+router.register('api/v1/posts/', )
 
 urlpatterns = [
     path('api/v1/api-token-auth/', views.obtain_auth_token),
