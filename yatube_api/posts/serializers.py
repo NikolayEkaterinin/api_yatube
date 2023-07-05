@@ -23,18 +23,16 @@ class CommentSerializer(serializers.Serializer):
         default=serializers.CurrentUserDefault(),
         slug_field='username'
     )
-    creator = serializers.DateTimeField(read_only=True,
-                                        format='%Y-%m-%d %H:%M:%S'
-
-                                        )
+    created = serializers.DateTimeField(read_only=True,
+                                        format='%Y-%m-%d %H:%M:%S')
 
     class Meta:
         model = Comment
         fields = ('id', 'author', 'post', 'text', 'created')
+        read_only_fields = ('post',)
 
 
-class GroupSerializer(serializers.Serializer):
-
+class GroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Group

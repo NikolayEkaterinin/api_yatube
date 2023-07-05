@@ -1,8 +1,7 @@
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import PermissionDenied
+from rest_framework import (viewsets,
+                            permissions)
 
-from rest_framework import viewsets, generics
-from rest_framework import status
 
 from posts.models import (Post,
                           Group,
@@ -12,42 +11,39 @@ from posts.serializers import (PostSerializer,
                                CommentSerializer,
                                GroupSerializer
                                )
-from rest_framework.response import Response
+
+
+class IsOwnerOrOnlyRead(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.author == request.user
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
+    queryset = Post.objects.all().select_related('author')
     serializer_class = PostSerializer
-
-    def perform_update(self, serializer):
-        if serializer.instance.author != self.request.user:
-            raise PermissionDenied('Изменение чужого контента запрещено!')
-        super(PostViewSet, self).perform_update(serializer)
-
-    def post_delete_not_author(self, request, pk):
-        post = get_object_or_404(Post, id=pk)
-        if request.method == 'DELETE':
-            user = request.user
-            if user != post.author:
-                return Response(status=status.HTTP_403_FORBIDDEN)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrOnlyRead]
 
 
-class GroupList(generics.ListCreateAPIView):
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
 
-class GroupDetails(generics.RetrieveAPIView):
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-
-
-class CommentList(generics.ListAPIView):
-    queryset = Comment.objects.all()
+class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrOnlyRead]
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user, post=self.get_post())
 
-class CommentEdit(generics.ListCreateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+    def get_post(self):
+        return get_object_or_404(Post, pk=self.kwargs.get('post_id'))
+
+    def get_queryset(self):
+        return self.get_post().comments.select_related('author')
