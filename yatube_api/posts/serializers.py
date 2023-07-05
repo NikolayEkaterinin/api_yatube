@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Post, Group, Comment
+from .models import Comment, Group, Post
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -17,12 +17,11 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'pub_date', 'author', 'group')
 
 
-class CommentSerializer(serializers.Serializer):
+class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True,
         default=serializers.CurrentUserDefault(),
-        slug_field='username'
-    )
+        slug_field='username')
     created = serializers.DateTimeField(read_only=True,
                                         format='%Y-%m-%d %H:%M:%S')
 

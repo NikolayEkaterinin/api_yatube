@@ -1,16 +1,9 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import (viewsets,
-                            permissions)
+from rest_framework import permissions, viewsets
 
-
-from posts.models import (Post,
-                          Group,
-                          Comment
-                          )
-from posts.serializers import (PostSerializer,
-                               CommentSerializer,
-                               GroupSerializer
-                               )
+from posts.models import Group, Post
+from posts.serializers import (CommentSerializer, GroupSerializer,
+                               PostSerializer)
 
 
 class IsOwnerOrOnlyRead(permissions.BasePermission):
@@ -24,7 +17,6 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().select_related('author')
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrOnlyRead]
-
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
