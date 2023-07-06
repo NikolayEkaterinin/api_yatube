@@ -6,11 +6,7 @@ from posts.serializers import (CommentSerializer, GroupSerializer,
                                PostSerializer)
 
 
-class IsOwnerOrOnlyRead(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return obj.author == request.user
+from .permissions import IsOwnerOrOnlyRead
 
 
 class PostViewSet(viewsets.ModelViewSet):
