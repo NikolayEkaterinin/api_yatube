@@ -39,6 +39,9 @@ class Post(models.Model):
                               null=True,
                               verbose_name='Группа')
 
+    def __str__(self):
+        return f"{self.text[:50]}"
+
     class Meta:
         verbose_name = 'Пост'
         verbose_name_plural = 'Посты'
